@@ -1,127 +1,179 @@
-import { StatusBar } from 'expo-status-bar';
-import { ScrollView, View, Text, Image, Alert } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { images } from '../../constants';
-import { supabase } from '../../lib/supabase'; // Adjust the path as necessary
-import { useAuth } from '../../providers/AuthProvider';
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  // Button,
+  // FlatList,
+  // TextInput,
+  Pressable,
+  Alert,
+  // Dimensions,
+} from "react-native";
+import * as gps from "expo-location";
+import MapView, { Marker } from "react-native-maps";
+import { supabase } from "@/lib/supabase";
+import { CalculateDistance } from "@/components/CalculateDistance";
 
-export default function DonationHistory() {
-  const {session}=useAuth()
-  const [donations, setDonations] = useState([]);
-  const [locations, setLocations] = useState({}); // To store camp locations
-  const userId = session.user.id; // Assuming session.user.id is available
-
-  // Fetch donation data for the specific donor
-  const fetchDonations = async () => {
-    const { data, error } = await supabase
-      .from('donor_donations')
-      .select('date, camp_id')
-      .eq('donor_id', userId); // F donor_id
-
-    if (error) {
-      Alert.alert('Error fetching donations', error.message);
-      return;
+// Function to request permissions and fetch location
+async function requestLocationPermission() {
+  try {
+    const { status } = await gps.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access location was denied.");
+      return null;
     }
 
-    // Map the fetched data to include the amount in ml
-    const formattedDonations = data.map(donation => ({
-      date: donation.date,
-      camp_id: donation.camp_id,
-      
-    }));
+    const location = await gps.getCurrentPositionAsync({});
+    return location;
+  } catch (error) {
+    alert(`Error fetching location: ${error}`);
+    return null;
+  }
+}
 
-    setDonations(formattedDonations);
-    fetchCampLocations(formattedDonations.map(d => d.camp_id)); // Fetch locations for the camp_ids
-  };
-
-  // Fetch camp locations based on camp_ids
-  const fetchCampLocations = async (campIds) => {
-    const { data, error } = await supabase
-      .from('blood_camp')
-      .select('id, location') // Assuming 'location' is the field for camp location
-      .in('id', campIds); // Filter by camp_ids
-
-    if (error) {
-      Alert.alert('Error fetching camp locations', error.message);
-      return;
-    }
-
-    // Map locations to camp_ids
-    const locationMap = {};
-    data.forEach(camp => {
-      locationMap[camp.id] = camp.location; // Assuming 'id' is the camp_id
+// Function to fetch nearby users
+async function findNearbyUsers(latitude: number, longitude: number) {
+  try {
+    const { data, error } = await supabase.rpc("get_nearby_camps", {
+      lat: latitude,
+      lon: longitude,
+      // radius_km: 10,
     });
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error fetching nearby users:", error);
+    return [];
+  }
+}
 
-    setLocations(locationMap);
+export default function Location() {
+  // Use States to store location and nearby users
+  const [location, setLocation] = useState<gps.LocationObject | null>(null);
+  const [nearbyUsers, setNearbyUsers] = useState<
+    {
+      blood_camp_id: string;
+      camp_name: string;
+      longitude: number;
+      latitude: number;
+      distance: number;
+    }[]
+  >([]);
+  const [region, setRegion] = useState({
+    latitude: 9.6615,
+    longitude: 80.0255,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
+
+  const renderMarkers = () =>
+    nearbyUsers.map((user: any) => (
+      <Marker
+        key={user.blood_camp_id}
+        coordinate={{
+          latitude: user.latitude,
+          longitude: user.longitude,
+        }}
+        title={user.camp_name}
+        pinColor="green"
+        description={`Distance: ${user.distance.toFixed(2)} km`}
+      />
+    ));
+
+  // Fetch Nearby Users
+  const fetchNearbyUsers = async () => {
+    if (location) {
+      const { latitude, longitude } = location.coords;
+      const users = await findNearbyUsers(latitude, longitude);
+      setNearbyUsers(users);
+    }
   };
 
+  // Init func
   useEffect(() => {
-    fetchDonations();
+    (async () => {
+      const loc = await requestLocationPermission();
+      if (loc) {
+        // Debuging
+        // console.log("Location fetched:", loc); //Debugging
+        let longitude: number = loc.coords.longitude;
+        let latitude: number = loc.coords.latitude;
+        alert(`POINT(${longitude} ${latitude})`);
+        setLocation(loc);
+      }
+    })();
   }, []);
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        padding: 20,
-      }}
-    >
-      <View
-        style={{
-          padding: 20,
-          borderRadius: 10,
-          alignItems: 'center',
-          width: '100%',
+    <View style={styles.container}>
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: location?.coords.latitude || 37.78825,
+          longitude: location?.coords.longitude || -122.4324,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
         }}
+        showsUserLocation
       >
-        <Text style={{ fontSize: 36, fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF', padding: 15 }}>
-          <Text style={{ color: '#FD0000' }}>
-            Donation History !!!
-          </Text>
-        </Text>
+        {renderMarkers()}
+      </MapView>
 
-        <Image
-          source={images.thumbnail}
-          style={{ maxWidth: 380, width: '100%', height: 180 }}
-          resizeMode="contain"
-        />
+      {/* <TextInput
+        style={styles.searchBox}
+        placeholder="Search location"
+        value={"searchText"}
+        // onChangeText={(text) => setSearchText(text)}
+      /> */}
 
-        {donations.map((donation, index) => (
-          <View
-            key={index}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#ff767b',
-              padding: 20,
-              borderRadius: 20,
-              marginVertical: 5,
-              width: '100%',
-              maxWidth: 500,
-              justifyContent: 'space-between',
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Image
-                source={images.profile}
-                style={{ width: 40, height: 40, marginRight: 10 }}
-                resizeMode="contain"
-              />
-              <View>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#fff' }}>
-                  {donation.date}
-                </Text>
-                <Text style={{ fontSize: 14, color: '#fff' }}>
-                  {locations[donation.camp_id] || 'Loading...'} {/* Show location */}
-                </Text>
-              </View>
-            </View>
-            
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+      <Pressable style={styles.button} onPress={fetchNearbyUsers}>
+        <Text style={styles.buttonText}>Hero Spot Finder</Text>
+      </Pressable>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  map: {
+    //flex: 1,
+    position: "absolute",
+    top: 50,
+    left: 20,
+    right: 20,
+    bottom: 150,
+  },
+
+  searchBox: {
+    position: "absolute",
+    bottom: 90,
+    left: "10%",
+    right: "10%",
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingLeft: 15,
+    backgroundColor: "#fff",
+    fontSize: 16,
+  },
+  button: {
+    position: "absolute",
+    bottom: 30,
+    left: "10%",
+    right: "10%",
+    padding: 15,
+    backgroundColor: "#FD0000",
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
