@@ -1,23 +1,12 @@
-import { View, Text  } from 'react-native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar'
+import { useAuth } from "../../providers/AuthProvider";
+import {  Redirect, Stack } from 'expo-router';
 
-const AuthLayout = () => {
-    return(
-        <>
-            <Stack>
-                <Stack.Screen
-                    name="sign-in"
-                    options={{
-                        headerShown: false
-                    }}
-                />
-                
-            </Stack>
 
-            <StatusBar backgroundColor='#161622' style="light" />
-        </>
-    )
-}
-
-export default AuthLayout
+export default function AuthLayout() {
+  const {session}=useAuth();
+ 
+ if(session){
+  return <Redirect href={'/(tabs)'} />;
+ }
+ return <Stack/>
+};

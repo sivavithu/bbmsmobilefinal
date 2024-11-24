@@ -40,9 +40,7 @@ const SignIn = () => {
   };
 
   // If redirect is true, navigate to the dashboard
-  if (redirect) {
-    return <Redirect href="/(tabs)" />;
-  }
+ 
 
   return (
     <LinearGradient
