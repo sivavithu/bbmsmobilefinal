@@ -35,12 +35,24 @@ async function requestLocationPermission() {
 // Function to fetch nearby users
 async function findNearbyUsers(latitude: number, longitude: number) {
   try {
-    const { data, error } = await supabase.rpc("get_nearby_camps", {
+    const { data, error } = await supabase.rpc("get_radial_camps", {
       lat: latitude,
       lon: longitude,
-      // radius_km: 10,
+      radius_km: 10,
     });
     if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error fetching nearby users:", error);
+    return [];
+  }
+}
+
+async function retireveCamps() {
+  try {
+    const { data, error } = await supabase.rpc("get_camps");
+    if (error) throw error;
+    console.log(data);
     return data;
   } catch (error) {
     console.error("Error fetching nearby users:", error);
@@ -53,11 +65,12 @@ export default function Location() {
   const [location, setLocation] = useState<gps.LocationObject | null>(null);
   const [nearbyUsers, setNearbyUsers] = useState<
     {
-      blood_camp_id: string;
+      camp_id: string;
       camp_name: string;
-      longitude: number;
       latitude: number;
-      distance: number;
+      longitude: number;
+      // distance: number;
+      blood_type: number;
     }[]
   >([]);
   const [region, setRegion] = useState({
@@ -70,14 +83,17 @@ export default function Location() {
   const renderMarkers = () =>
     nearbyUsers.map((user: any) => (
       <Marker
-        key={user.blood_camp_id}
+        key={user.camp_id}
         coordinate={{
           latitude: user.latitude,
           longitude: user.longitude,
         }}
         title={user.camp_name}
-        pinColor="green"
-        description={`Distance: ${user.distance.toFixed(2)} km`}
+        pinColor={user.blood_type === 0 ? "green" : "red"}
+        description={
+          user.blood_type === 0 ? "Blood Camp" : "Hero Spot" + user.blood_type
+        }
+        // description={`Distance: ${user.distance.toFixed(2)} km`}
       />
     ));
 
@@ -88,6 +104,11 @@ export default function Location() {
       const users = await findNearbyUsers(latitude, longitude);
       setNearbyUsers(users);
     }
+  };
+
+  const fetchCamps = async () => {
+    const users = await retireveCamps();
+    setNearbyUsers(users);
   };
 
   // Init func
@@ -127,7 +148,7 @@ export default function Location() {
         // onChangeText={(text) => setSearchText(text)}
       /> */}
 
-      <Pressable style={styles.button} onPress={fetchNearbyUsers}>
+      <Pressable style={styles.button} onPress={fetchCamps}>
         <Text style={styles.buttonText}>Hero Spot Finder</Text>
       </Pressable>
     </View>
