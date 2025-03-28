@@ -13,7 +13,7 @@ export default function App() {
   const [buttonPressed, setButtonPressed] = useState(false);
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#FD0000" style={{ flex: 1, justifyContent: 'center' }} />;
+    return <ActivityIndicator size="large" color="#E40000" style={{ flex: 1, justifyContent: 'center' }} />;
   }
 
   if (buttonPressed) {
@@ -28,7 +28,7 @@ export default function App() {
 
   return (
     <LinearGradient
-      colors={['#FFFFFF', '#FD0000', '#FFFFFF', '#FD0000', '#FFFFFF', '#FFFFFF']}
+      colors={['#FFFFFF', '#E40000', '#FFFFFF', '#E40000', '#FFFFFF', '#FFFFFF']}
       locations={[0.4, 0.8, 1, 0.2, 0.3, 0.5]}
       style={{ flex: 1 }}
     >
@@ -64,7 +64,7 @@ export default function App() {
                 textAlign: 'center',
               }}
             >
-              "Tears of a mother cannot save her Child. But your Blood can."
+              " Tears of a mother cannot save her Child. But your Blood can. "
             </Text>
 
             <Image
@@ -82,7 +82,7 @@ export default function App() {
                 textAlign: 'center',
               }}
             >
-              "Be the reason for someone’s heartbeat" with{' '}
+              " Be the reason for someone’s heartbeat " with{' '}
               <Text style={{ color: '#ff0000', fontWeight: 'bold' }}>Blood KING</Text>
             </Text>
 

@@ -77,7 +77,7 @@ export default function DonationHistory() {
         }}
       >
         <Text style={{ fontSize: 36, fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF', padding: 15 }}>
-          <Text style={{ color: '#FD0000' }}>
+          <Text style={{ color: '#E40000' }}>
             Donation History !!!
           </Text>
         </Text>

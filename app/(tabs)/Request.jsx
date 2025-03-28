@@ -69,7 +69,7 @@ const Request = () => {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#FFFFFF", "#FFFFFF", "#FD0000"]}
+        colors={["#FFFFFF", "#FFFFFF", "#E40000"]}
         locations={[0.3, 0.7, 1]}
         style={{ flex: 1 }}
       >

@@ -15,7 +15,7 @@ const BloodCentresNearYou = () => {
 
   return (
     <LinearGradient
-      colors={['#FFFFFF', '#FD0000', '#FFFFFF']}
+      colors={['#FFFFFF', '#E40000', '#FFFFFF']}
       locations={[0.3, 0.7, 1]}
       style={{ flex: 1 }}
     >
@@ -37,7 +37,7 @@ const BloodCentresNearYou = () => {
             }}
           >
             <Text style={{ fontSize: 36, fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF', padding: 15 }}>
-              <Text style={{ color: '#FD0000' }}>
+              <Text style={{ color: '#E40000' }}>
                 Blood Centres Near You !!!
               </Text>
             </Text>

@@ -58,7 +58,7 @@ export default function BloodBankCamp() {
             padding: 15,
           }}
         >
-          <Text style={{ color: '#FD0000' }}>Blood Bank Camp</Text>
+          <Text style={{ color: '#E40000' }}>Blood Bank Camp</Text>
         </Text>
         <Text style={{ fontSize: 18, fontWeight: '500', textAlign: 'right', color: '#111111' }}>
           Near You...

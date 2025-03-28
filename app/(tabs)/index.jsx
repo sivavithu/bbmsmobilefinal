@@ -69,7 +69,7 @@ const SignUp = () => {
   
   return (
     <LinearGradient
-      colors={['#FFFFFF', '#FD0000', '#FFFFFF', '#FD0000', '#FFFFFF', '#FFFFFF']}
+      colors={['#FFFFFF', '#E40000', '#FFFFFF', '#E40000', '#FFFFFF', '#FFFFFF']}
       locations={[0.4, 0.8, 1, 0.2, 0.3, 0.5]}
       style={{ flex: 1 }}
     >
@@ -79,7 +79,7 @@ const SignUp = () => {
             <View style={{ width: '100%', justifyContent: 'center', minHeight: '8vh', paddingHorizontal: 16, marginVertical: 24 }}>
               <View style={{ position: 'relative', marginTop: 20 }}>
                 <Text style={{ fontSize: 36, fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' }}>
-                  <Text style={{ color: '#FD0000' }}>Blood KING</Text>
+                  <Text style={{ color: '#E40000' }}>Blood KING</Text>
                 </Text>
                 <Image
                   source={images.curve}
